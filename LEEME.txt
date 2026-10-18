@@ -1,0 +1,7 @@
+OUR DREAM — Panel de administración (vista previa)
+
+Contenido:
+- panel-vista-previa.html: maqueta responsive en español, negro y dorado.
+
+IMPORTANTE:
+Este archivo NO es todavía un panel privado real. No tiene autenticación, base de datos, envío de correo, permisos de empleados ni procesamiento de pagos. No lo publiques ni lo uses para almacenar datos de clientes. Para producción se necesita un backend seguro, autenticación y autorización por roles, base de datos con reglas de acceso, protección de formularios y proveedor de correo. Los pagos se integrarán mediante un proveedor comercial compatible con Haití.
