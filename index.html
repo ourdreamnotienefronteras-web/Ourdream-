@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111111">
+  <meta name="description" content="OUR DREAM: servicios de traducción, redacción y clases de idiomas.">
+  <title>OUR DREAM — Servicios sin fronteras</title>
+  <style>
+    :root{--black:#111;--panel:#222;--gold:#c9a227;--gold-light:#f2d675;--text:#f5f5f5;--muted:#c8c8c8;--danger:#ffb4a9;--ok:#b9f6ca}
+    *{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#181818;color:var(--text);line-height:1.5}
+    header{background:var(--black);color:var(--gold-light);padding:24px 16px;text-align:center;border-bottom:2px solid var(--gold)}header h1{margin:0;font-size:clamp(27px,5vw,36px);letter-spacing:2px}header p{margin:5px 0 0;color:#f5f5f5}
+    main{width:min(94%,820px);margin:26px auto}.card{background:var(--panel);padding:clamp(16px,4vw,26px);margin-bottom:22px;border:1px solid #4c411f;border-radius:14px;box-shadow:0 4px 15px #0003}
+    h2,h3,h4{color:var(--gold-light)}h2{margin-top:0}label{display:block;margin-top:12px;color:var(--gold-light);font-weight:600}
+    input,textarea,select,button{width:100%;padding:12px;margin-top:8px;border-radius:8px;font:inherit}input,textarea,select{border:1px solid #6f6338;background:#fff;color:#111}textarea{resize:vertical;min-height:100px}
+    button{border:1px solid var(--gold);background:var(--gold);color:#111;cursor:pointer;font-weight:700}button:hover{background:var(--gold-light)}button:disabled{opacity:.6;cursor:wait}button.secondary{background:#414141;color:#fff;border-color:#777}button.secondary:hover{background:#555}
+    .hidden,[hidden]{display:none!important}.message{margin-top:12px;overflow-wrap:anywhere}.muted,small{color:var(--muted)}.post,.request-card{border-top:1px solid #514723;padding:16px 0;overflow-wrap:anywhere}.request-card{border:1px solid var(--gold);border-radius:10px;padding:14px;margin:12px 0}.request-card h4{margin-top:0}.button-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:10px}.button-row button{margin-top:0}.status{font-weight:700}.ok{color:var(--ok)}.error{color:var(--danger)}hr{border:0;border-top:1px solid #514723;margin:24px 0}footer{text-align:center;padding:20px;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <header><h1>OUR DREAM</h1><p>Servicios sin fronteras</p></header>
+  <main>
+    <section class="card" id="auth-card">
+      <h2>Bienvenido/a a OUR DREAM</h2><p>Crea una cuenta o inicia sesión para continuar.</p>
+      <form id="signup-form">
+        <h3>Crear una cuenta</h3>
+        <label for="signup-name">Nombre</label><input id="signup-name" type="text" placeholder="Tu nombre" maxlength="100" autocomplete="name" required>
+        <label for="signup-email">Correo electrónico</label><input id="signup-email" type="email" placeholder="Correo electrónico" autocomplete="email" required>
+        <label for="signup-password">Contraseña</label><input id="signup-password" type="password" placeholder="Mínimo 8 caracteres" minlength="8" autocomplete="new-password" required>
+        <button type="submit">Crear cuenta</button>
+      </form>
+      <hr>
+      <form id="login-form"><h3>Iniciar sesión</h3>
+        <label for="login-email">Correo electrónico</label><input id="login-email" type="email" placeholder="Correo electrónico" autocomplete="username" required>
+        <label for="login-password">Contraseña</label><input id="login-password" type="password" placeholder="Contraseña" autocomplete="current-password" required>
+        <button type="submit">Entrar</button>
+      </form>
+      <p id="auth-message" class="message" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="card hidden" id="app-card">
+      <h2>Mi espacio</h2><p id="welcome-message"></p><p id="admin-access-message" class="message" role="status" aria-live="polite">Comprobando permisos de administración…</p><button id="admin-jump-button" class="hidden" type="button">Abrir panel de administración</button><button id="logout-button" class="secondary" type="button">Cerrar sesión</button>
+      <hr><h3>Publicar un servicio</h3>
+      <p class="muted">Publica un servicio de traducción, redacción o clases. El precio publicado es orientativo; la administración confirmará el precio final de cada solicitud.</p>
+      <form id="post-form">
+        <label for="post-service">Tipo de servicio</label><select id="post-service" required><option value="">Selecciona un servicio</option><option value="Traducción">Traducción</option><option value="Redacción">Redacción</option><option value="Clases de idiomas">Clases de idiomas</option></select>
+        <label for="post-language">Idioma</label><select id="post-language" required><option value="">Selecciona un idioma</option><option value="Español">Español</option><option value="Francés">Francés</option><option value="Criollo haitiano">Criollo haitiano</option><option value="Portugués">Portugués</option></select>
+        <label for="post-title">Título</label><input id="post-title" type="text" maxlength="150" placeholder="Ej.: Traducción del francés al español" required>
+        <label for="post-content">Descripción</label><textarea id="post-content" maxlength="5000" placeholder="Explica el servicio que ofreces." required></textarea>
+        <label for="post-price">Precio orientativo (número)</label><input id="post-price" type="number" min="0" step="0.01" placeholder="Ej.: 25" required>
+        <button type="submit">Publicar servicio</button>
+      </form><p id="post-message" class="message" role="status" aria-live="polite"></p>
+
+      <hr><h3>Servicios disponibles</h3><p class="muted">Selecciona un servicio para solicitarlo.</p><div id="posts-list"><p>Cargando servicios…</p></div>
+
+      <hr><h3>Solicitar un servicio</h3>
+      <form id="request-form">
+        <label for="request-service">Tipo de servicio</label><select id="request-service" required><option value="">Selecciona un tipo</option><option value="Traducción">Traducción</option><option value="Redacción">Redacción</option><option value="Clases de idiomas">Clases de idiomas</option></select>
+        <label for="request-service-id">Servicio publicado</label><select id="request-service-id" required><option value="">Primero carga los servicios disponibles</option></select>
+        <label for="request-description">Describe lo que necesitas</label><textarea id="request-description" maxlength="5000" placeholder="Explica el trabajo que deseas solicitar." required></textarea>
+        <label for="request-currency">Moneda para la cotización</label><select id="request-currency" required><option value="">Selecciona una moneda</option><option value="USD">Dólares estadounidenses (USD)</option><option value="HTG">Gourdes haitianos (HTG)</option></select>
+        <button type="submit">Enviar solicitud</button>
+      </form><p id="request-message" class="message" role="status" aria-live="polite"></p>
+
+      <hr><h3>Mis solicitudes</h3><p class="muted">Cuando la administración proponga un precio, podrás confirmarlo aquí. La administración solo podrá aceptar el servicio después de tu confirmación.</p>
+      <div id="my-requests-list"><p>Tus solicitudes aparecerán aquí.</p></div><p id="my-requests-message" class="message" role="status" aria-live="polite"></p>
+
+      <section id="admin-requests-panel" class="hidden" hidden>
+        <hr><h2>Panel privado de administración</h2><p class="muted">Propón el precio. El cliente debe confirmarlo antes de que puedas aceptar la solicitud.</p>
+        <div id="admin-requests-list"><p>Las solicitudes aparecerán aquí.</p></div><p id="admin-requests-message" class="message" role="status" aria-live="polite"></p>
+      </section>
+    </section>
+  </main>
+  <footer>OUR DREAM © 2026</footer>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+  (() => {
+    "use strict";
+    const SUPABASE_URL = "https://nbsksbqzzhsvvgpzlhbs.supabase.co";
+    // La clave publishable se puede usar en el navegador. Nunca pegues aquí una service_role key.
+    const SUPABASE_KEY = "sb_publishable_nTD7ivsK8uolc5fasBhONg_42WQZBDW";
+    if (!window.supabase) {
+      document.getElementById("auth-message").textContent = "No se pudo cargar la biblioteca de conexión. Comprueba tu conexión a Internet y recarga la página.";
+      return;
+    }
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const $ = (id) => document.getElementById(id);
+    let currentUser = null;
+    let isAdmin = false;
+    let servicesCache = [];
+
+    function message(id, text, kind = "") {
+      const node = $(id); if (!node) return;
+      node.textContent = text;
+      node.classList.toggle("error", kind === "error");
+      node.classList.toggle("ok", kind === "ok");
+    }
+    function make(tag, text, className) {
+      const node = document.createElement(tag);
+      if (text !== undefined && text !== null) node.textContent = String(text);
+      if (className) node.className = className;
+      return node;
+    }
+    function formatDate(value) {
+      if (!value) return "Fecha no disponible";
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? "Fecha no disponible" : date.toLocaleString();
+    }
+    function displayPrice(value, currency = "") {
+      if (value === null || value === undefined || value === "") return "Pendiente";
+      return `${value} ${currency}`.trim();
+    }
+    function showApp(user) {
+      currentUser = user || null;
+      $("auth-card").classList.add("hidden");
+      $("app-card").classList.remove("hidden");
+      $("welcome-message").textContent = `Bienvenido/a, ${user?.user_metadata?.full_name || user?.email || "Usuario"}`;
+      message("auth-message", "");
+      message("admin-access-message", "Comprobando permisos de administración…");
+      $("admin-jump-button").classList.add("hidden");
+    }
+    function showLogin() {
+      currentUser = null; isAdmin = false; servicesCache = [];
+      $("auth-card").classList.remove("hidden");
+      $("app-card").classList.add("hidden");
+      $("admin-requests-panel").hidden = true;
+      $("admin-requests-panel").classList.add("hidden");
+      $("admin-jump-button").classList.add("hidden");
+      message("admin-access-message", "");
+      message("welcome-message", "");
+    }
+    async function checkAdmin(user) {
+      isAdmin = false;
+      message("admin-access-message", "Comprobando permisos de administración…");
+      $("admin-jump-button").classList.add("hidden");
+      $("admin-requests-panel").hidden = true;
+      $("admin-requests-panel").classList.add("hidden");
+      if (!user) return;
+      try {
+        const { data, error } = await db.from("user_roles").select("role").eq("user_id", user.id).maybeSingle();
+        if (error) throw error;
+        isAdmin = data?.role === "admin";
+        if (isAdmin) {
+          $("admin-requests-panel").hidden = false;
+          $("admin-requests-panel").classList.remove("hidden");
+          $("admin-jump-button").classList.remove("hidden");
+          message("admin-access-message", "Acceso de administración confirmado.", "ok");
+          await loadAdminRequests();
+        } else {
+          message("admin-access-message", "Esta sesión funciona, pero esta cuenta no aparece con role = admin en public.user_roles. Comprueba que user_id sea el ID de esta cuenta y que role sea exactamente admin.", "error");
+        }
+      } catch (error) {
+        console.error("Comprobación de rol:", error);
+        message("admin-access-message", `No se pudo comprobar el rol de administración: ${error.message || "error desconocido"}. Revisa la política SELECT de public.user_roles.`, "error");
+      }
+    }
+
+    $("signup-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const name = $("signup-name").value.trim();
+      const email = $("signup-email").value.trim();
+      const password = $("signup-password").value;
+      if (!name || !email || password.length < 8) { message("auth-message", "Completa los campos y usa una contraseña de al menos 8 caracteres.", "error"); return; }
+      const button = event.submitter; if (button) button.disabled = true;
+      message("auth-message", "Creando tu cuenta…");
+      try {
+        const { data, error } = await db.auth.signUp({ email, password, options: { data: { full_name: name } } });
+        if (error) throw error;
+        if (data.session && data.user) {
+          showApp(data.user); await refreshSignedInView(data.user);
+          message("auth-message", "Cuenta creada correctamente.", "ok");
+        } else {
+          message("auth-message", "Registro enviado. Revisa tu correo para confirmar la cuenta y después inicia sesión.", "ok");
+        }
+      } catch (error) {
+        console.error("Registro:", error); message("auth-message", `No se pudo crear la cuenta: ${error.message || "error desconocido"}`, "error");
+      } finally { if (button) button.disabled = false; }
+    });
+
+    $("login-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const email = $("login-email").value.trim(); const password = $("login-password").value;
+      const button = event.submitter; if (button) button.disabled = true;
+      message("auth-message", "Iniciando sesión…");
+      try {
+        const { data, error } = await db.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        showApp(data.user); await refreshSignedInView(data.user);
+        message("auth-message", "Sesión iniciada correctamente.", "ok");
+      } catch (error) {
+        console.error("Inicio de sesión:", error); message("auth-message", `No se pudo iniciar sesión: ${error.message || "error desconocido"}`, "error");
+      } finally { if (button) button.disabled = false; }
+    });
+
+    $("admin-jump-button").addEventListener("click", () => {
+      $("admin-requests-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    $("logout-button").addEventListener("click", async () => {
+      try {
+        const { error } = await db.auth.signOut(); if (error) throw error;
+        showLogin(); message("auth-message", "Sesión cerrada correctamente.", "ok");
+      } catch (error) { console.error("Cerrar sesión:", error); message("post-message", `No se pudo cerrar la sesión: ${error.message || "error desconocido"}`, "error"); }
+    });
+
+    async function refreshSignedInView(user) {
+      if (!user) return;
+      currentUser = user;
+      await loadServices();
+      await loadMyRequests();
+      await checkAdmin(user);
+    }
+
+    $("post-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!currentUser) { message("post-message", "Inicia sesión antes de publicar.", "error"); return; }
+      const service_type = $("post-service").value;
+      const language = $("post-language").value;
+      const title = $("post-title").value.trim();
+      const description = $("post-content").value.trim();
+      const priceText = $("post-price").value;
+      const price = Number(priceText);
+      if (!service_type || !language || !title || !description || priceText === "" || !Number.isFinite(price) || price < 0) {
+        message("post-message", "Completa todos los campos e introduce un precio válido de cero o más.", "error"); return;
+      }
+      const button = event.submitter; if (button) button.disabled = true;
+      message("post-message", "Guardando el servicio…");
+      try {
+        const { error } = await db.from("services").insert({ user_id: currentUser.id, service_type, language, title, description, price });
+        if (error) throw error;
+        $("post-form").reset(); message("post-message", "Servicio publicado correctamente.", "ok"); await loadServices();
+      } catch (error) {
+        console.error("Publicar servicio:", error); message("post-message", `No se pudo publicar. Revisa las columnas y las políticas RLS de services. ${error.message || ""}`, "error");
+      } finally { if (button) button.disabled = false; }
+    });
+
+    $("request-service").addEventListener("change", filterServiceOptions);
+    function filterServiceOptions() {
+      const chosenType = $("request-service").value;
+      const select = $("request-service-id");
+      const previous = select.value;
+      select.replaceChildren(new Option("Selecciona un servicio", ""));
+      const matching = servicesCache.filter(s => !chosenType || s.service_type === chosenType);
+      for (const service of matching) select.add(new Option(`${service.title} — ${service.language} — ${service.price}`, String(service.id)));
+      if (matching.length === 0) select.add(new Option("No hay servicios de este tipo", ""));
+      if ([...select.options].some(o => o.value === previous)) select.value = previous;
+    }
+    async function loadServices() {
+      const list = $("posts-list"); list.replaceChildren(make("p", "Cargando servicios…"));
+      try {
+        const { data, error } = await db.from("services").select("id, user_id, service_type, language, title, description, price, created_at").order("created_at", { ascending: false }).limit(100);
+        if (error) throw error;
+        servicesCache = data || []; list.replaceChildren();
+        if (!servicesCache.length) list.append(make("p", "Todavía no hay servicios publicados."));
+        for (const service of servicesCache) {
+          const article = make("article", undefined, "post");
+          article.append(make("h4", service.title), make("p", `Tipo: ${service.service_type}`), make("p", `Idioma: ${service.language}`), make("p", service.description), make("p", `Precio orientativo: ${service.price}`), make("small", `Publicado: ${formatDate(service.created_at)}`));
+          if (currentUser && service.user_id === currentUser.id) article.append(make("small", "Este servicio fue publicado por tu cuenta."));
+          list.append(article);
+        }
+        filterServiceOptions();
+      } catch (error) {
+        console.error("Cargar servicios:", error); servicesCache = []; list.replaceChildren(make("p", "No se pudieron cargar los servicios. Comprueba la conexión y las políticas SELECT de services.")); filterServiceOptions();
+      }
+    }
+
+    $("request-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!currentUser) { message("request-message", "Debes iniciar sesión para solicitar un servicio.", "error"); return; }
+      const serviceId = $("request-service-id").value;
+      const description = $("request-description").value.trim(); const currency = $("request-currency").value;
+      if (!serviceId || !description || !currency) { message("request-message", "Selecciona un servicio, describe lo que necesitas y elige una moneda.", "error"); return; }
+      const button = event.submitter; if (button) button.disabled = true;
+      message("request-message", "Enviando solicitud…");
+      try {
+        const { error } = await db.from("service_requests").insert({ client_id: currentUser.id, service_id: serviceId, requested_description: description, currency, status: "pending" });
+        if (error) throw error;
+        $("request-form").reset(); filterServiceOptions();
+        message("request-message", "Solicitud enviada. La administración revisará y propondrá un precio.", "ok");
+        await loadMyRequests(); if (isAdmin) await loadAdminRequests();
+      } catch (error) {
+        console.error("Crear solicitud:", error); message("request-message", `No se pudo enviar la solicitud. Comprueba las columnas y las políticas RLS de service_requests. ${error.message || ""}`, "error");
+      } finally { if (button) button.disabled = false; }
+    });
+
+    async function loadMyRequests() {
+      const list = $("my-requests-list"); list.replaceChildren(make("p", "Cargando tus solicitudes…"));
+      if (!currentUser) { list.replaceChildren(make("p", "Inicia sesión para ver tus solicitudes.")); return; }
+      try {
+        const { data, error } = await db.from("service_requests").select("id, requested_description, proposed_price, currency, status, created_at, service_id, client_confirmed, client_confirmed_at").eq("client_id", currentUser.id).order("created_at", { ascending: false });
+        if (error) throw error;
+        list.replaceChildren();
+        if (!data?.length) { list.append(make("p", "Todavía no has enviado solicitudes.")); return; }
+        for (const request of data) {
+          const card = make("article", undefined, "request-card");
+          card.append(make("h4", `Solicitud #${request.id}`), make("p", `Descripción: ${request.requested_description}`), make("p", `Precio propuesto: ${displayPrice(request.proposed_price, request.currency)}`), make("p", `Estado: ${request.status}`), make("small", `Fecha: ${formatDate(request.created_at)}`));
+          if (request.status === "awaiting_price_confirmation" && request.proposed_price !== null && !request.client_confirmed) {
+            const confirm = make("button", "Confirmar este precio"); confirm.type = "button";
+            confirm.addEventListener("click", async () => {
+              confirm.disabled = true; message("my-requests-message", "Guardando tu confirmación…");
+              try {
+                const { error } = await db.rpc("confirm_service_request_price", { p_request_id: String(request.id) });
+                if (error) throw error;
+                message("my-requests-message", "Precio confirmado. La administración ya puede aceptar el servicio.", "ok");
+                await loadMyRequests(); if (isAdmin) await loadAdminRequests();
+              } catch (error) {
+                console.error("Confirmar precio:", error); message("my-requests-message", `No se pudo confirmar el precio. Ejecuta la migración SQL incluida y revisa los permisos. ${error.message || ""}`, "error"); confirm.disabled = false;
+              }
+            }); card.append(confirm);
+          } else if (request.client_confirmed) card.append(make("p", "Precio confirmado por el cliente.", "status ok"));
+          list.append(card);
+        }
+      } catch (error) {
+        console.error("Cargar mis solicitudes:", error); list.replaceChildren(make("p", "No se pudieron cargar tus solicitudes. Revisa la política SELECT de service_requests."));
+      }
+    }
+
+    async function loadAdminRequests() {
+      if (!isAdmin) return;
+      const list = $("admin-requests-list"); list.replaceChildren(make("p", "Cargando solicitudes…"));
+      try {
+        const { data, error } = await db.from("service_requests").select("id, client_id, requested_description, proposed_price, currency, status, created_at, service_id, client_confirmed, client_confirmed_at").order("created_at", { ascending: false }).limit(200);
+        if (error) throw error;
+        list.replaceChildren();
+        if (!data?.length) { list.append(make("p", "Todavía no hay solicitudes registradas.")); message("admin-requests-message", ""); return; }
+        for (const request of data) {
+          const card = make("article", undefined, "request-card");
+          card.append(make("h4", `Solicitud #${request.id}`), make("p", `Cliente: ${request.client_id}`), make("p", `Descripción: ${request.requested_description}`), make("p", `Precio actual: ${displayPrice(request.proposed_price, request.currency)}`), make("p", `Estado: ${request.status}`, "status"), make("small", `Fecha: ${formatDate(request.created_at)}`));
+          if (request.status === "pending" || request.status === "awaiting_price_confirmation") {
+            const label = make("label", `Precio final en ${request.currency || "la moneda seleccionada"}`);
+            const input = document.createElement("input"); input.type = "number"; input.min = "0"; input.step = "0.01"; input.required = true; input.value = request.proposed_price ?? ""; input.setAttribute("aria-label", "Precio final propuesto"); label.append(input); card.append(label);
+            const save = make("button", request.status === "awaiting_price_confirmation" ? "Actualizar precio" : "Enviar precio al cliente"); save.type = "button";
+            save.addEventListener("click", async () => {
+              const priceText = input.value; const price = Number(priceText);
+              if (priceText === "" || !Number.isFinite(price) || price < 0) { message("admin-requests-message", "Introduce un precio válido de cero o más.", "error"); return; }
+              save.disabled = true;
+              try {
+                const { error } = await db.from("service_requests").update({ proposed_price: price, status: "awaiting_price_confirmation", client_confirmed: false, client_confirmed_at: null }).eq("id", request.id);
+                if (error) throw error;
+                message("admin-requests-message", "Precio enviado al cliente para que lo confirme.", "ok"); await loadAdminRequests(); await loadMyRequests();
+              } catch (error) {
+                console.error("Guardar precio:", error); message("admin-requests-message", `No se pudo guardar el precio. Comprueba proposed_price, client_confirmed y las políticas RLS. ${error.message || ""}`, "error"); save.disabled = false;
+              }
+            }); card.append(save);
+          }
+          if (request.status === "awaiting_price_confirmation" && !request.client_confirmed) card.append(make("p", "Pendiente de confirmación del cliente."));
+          if (request.client_confirmed && request.status === "awaiting_price_confirmation") {
+            card.append(make("p", "El cliente confirmó el precio. Ya puedes aceptar el servicio.", "status ok"));
+            const accept = make("button", "Aceptar servicio"); accept.type = "button";
+            accept.addEventListener("click", async () => {
+              if (!request.client_confirmed || request.proposed_price === null) { message("admin-requests-message", "El cliente debe confirmar un precio antes de aceptar.", "error"); return; }
+              accept.disabled = true;
+              try {
+                const { error } = await db.from("service_requests").update({ status: "accepted" }).eq("id", request.id).eq("client_confirmed", true).eq("status", "awaiting_price_confirmation");
+                if (error) throw error;
+                message("admin-requests-message", "Servicio aceptado correctamente.", "ok"); await loadAdminRequests(); await loadMyRequests();
+              } catch (error) {
+                console.error("Aceptar servicio:", error); message("admin-requests-message", `No se pudo aceptar. Comprueba la política UPDATE para administradores. ${error.message || ""}`, "error"); accept.disabled = false;
+              }
+            }); card.append(accept);
+          }
+          list.append(card);
+        }
+        message("admin-requests-message", `Solicitudes cargadas: ${data.length}`);
+      } catch (error) {
+        console.error("Cargar solicitudes de administración:", error); list.replaceChildren(make("p", "No se pudieron cargar las solicitudes.")); message("admin-requests-message", `Revisa la política SELECT de service_requests para administradores. ${error.message || ""}`, "error");
+      }
+    }
+
+    async function initialize() {
+      try {
+        const { data, error } = await db.auth.getSession();
+        if (error) throw error;
+        if (data.session?.user) { showApp(data.session.user); await refreshSignedInView(data.session.user); }
+        else showLogin();
+      } catch (error) { console.error("Inicialización:", error); showLogin(); message("auth-message", "No se pudo comprobar la sesión. Recarga la página e inténtalo de nuevo.", "error"); }
+    }
+    // No se esperan promesas dentro del callback de autenticación para evitar bloqueos del cliente Supabase.
+    db.auth.onAuthStateChange((event, session) => {
+      setTimeout(async () => {
+        if (session?.user) {
+          if (!currentUser || currentUser.id !== session.user.id || event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+            showApp(session.user); await refreshSignedInView(session.user);
+          }
+        } else if (event === "SIGNED_OUT") showLogin();
+      }, 0);
+    });
+    initialize();
+  })();
+  </script>
+</body>
+</html>
